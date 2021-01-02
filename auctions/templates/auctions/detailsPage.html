@@ -1,0 +1,143 @@
+{% extends 'auctions/layout.html' %}
+{% block style %}
+    <style>
+        #forGrid{
+            display: grid;
+            grid-template-columns: 1fr 2.5fr;
+            height: 30em;
+            width: 100%;
+        }
+        img{
+            width: 100%;
+            height: auto;
+        }
+        .input, .textarea{
+            border-color: transparent;
+            background-color: transparent;
+            resize: none;
+            width: 100%;
+        }
+        .textarea{
+            display: block;
+        }
+        .label{
+            font-size: 28px; 
+            font-weight: bold; 
+            color: rgb(84, 84, 84);
+        }
+    </style>
+{% endblock %}
+{% block title %}{{object.title}}{% endblock %}
+{% block body %}
+    {% if logged_in == "False" %}
+        <div class="alert alert-warning">To bid, please <a href="{% url 'login' %}" style="text-decoration: none; color:inherit; font-weight: bold;">Log In</a>.</div>
+    {% endif %}
+    <div class="alert alert-danger" id="biderror" style="display: none;">Your bid should be larger then the <span style="font-weight: bold;">Largest Bid</span></div>
+    <div class="alert alert-warning" id="numerror" style="display: none;">Please enter the valid number for Bid...</div>
+    <div id="forGrid">
+        <div id="for_img">
+            <img src="{{object.img_url}}" style="height: auto;width:70%; border-radius: 15px; margin: 1em 2em;">
+        </div>
+        <div id="for_details">
+            <input type="text" class="input" name="title" disabled value="{{object.title}}" class="form-control" style="font-weight: bold; height:2em;font-size: 1.8em;"><br>
+            <label for="textarea" class="label">Discription:</label><br>
+            &emsp;&emsp;&emsp;<textarea rows="5" id=textarea disabled class="textarea" class="form-control">{{object.discription}}</textarea><br>
+            <label for="catagory" class="label">Category: </label>
+            <input type="text" name="catagory" id="catagory" disabled value="{{object.catagory}}"  class="input" class="form-control" style="font-size: 1.25em;"><br>
+            {% if logged_in == "True" %}
+                {% if status == "True" %}
+                <label for="bid" class="label">Largest Bid:</label>
+                <input type="text" name="bid" id="bid" disabled value="${{bid.bid}}" class="input" class="form-control" style="font-size: 1.25em;"><br>
+            
+                <form action="{% url 'details' object.pk %}" method="POST" id="form">
+                    {% csrf_token %}
+                    <label for="newbid" class="label" style="display: inline;">Your Bid:</label>
+                    <input type="search" name=newBid id="newbid" class="form-control" style="width: 10em;display: inline;">
+                    <input type="hidden" id=hidden name="newBidder" value="{{user.username}}">
+                </form>
+                    <script>
+                        var form = document.getElementById("form");
+                        form.onsubmit = ()=>{
+                            var n = document.getElementById("newbid").value;
+                                var bidnum = parseInt(n); 
+                                if(isNaN(bidnum)){
+                                    document.getElementById("numerror").style.display = "block";
+                                    return false;
+                                }else{
+                                    document.getElementById("numerror").style.display = "none";
+                                    bidnum = parseInt(bidnum);
+                                    if (bidnum <= parseInt("{{bid.bid}}")){
+                                        document.getElementById("biderror").style.display = "block";
+                                        return false;
+                                    }else{
+                                        document.getElementById("biderror").style.display = "none";
+                                        return true;
+                                       }
+                                }
+                            return false;
+                        };
+                    </script>
+                    <br>
+                {% endif %}
+                    <form action="{% url 'addtowatchList' %}" method="POST"> 
+                        {% csrf_token %}
+                        <input type="hidden" name="user_name" value="{{user.username}}">
+                        <input type="hidden" name="auction_id" value="{{object.pk}}">
+                        {% if WatchList == "True" %}
+                        <input type="hidden" name="remove" value="yes">
+                            <input style="float: right; margin-right: 10%;" type="submit" value="Remove from WatchList" class="btn btn-warning" >
+                        {% else %}
+                        <input type="hidden" name="remove" value="no">
+                            <input style="float: right; margin-right: 10%;" type="submit" class="btn btn-primary" value="Add to WatchList" id="watchListbtn">
+                        {% endif %}
+                    </form>
+                    {% if status == "False" %}<br><br>
+                    <div class="alert alert-success">The winner is <span style="font-weight: bold;">{{bid.bidder_name}}</span>. Who is going to buy this item in <span style="font-weight: bold;">${{bid.bid}}</span>.</div>
+                    {% else %}
+                    {% if user.username == object.user.username %}
+                    <form action="{% url 'closeList' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="lastBid" value="{{bid.bid}}">
+                        <input type="hidden" name="lastBidder" value="{{bid.bidder_name}}">
+                        <input type="hidden" name="item_id" value="{{object.pk}}">
+                        <input type="submit" class="btn btn-danger" value="Close List">
+                    </form>
+                    {% endif %}
+                    {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    
+    
+    <div class = "label" class="h2" style="margin-top: 2em;">Comments</div>
+    <div class="alert alert-warning" id="commentError" style="display: none;"> Please write the comment for this item before you post</div>
+    {% if logged_in == "True" %}
+    <div style="border-bottom: 2px solid  rgb(84, 84, 84);margin-bottom: 2em; width: 100%;">
+        <div style="border: 2px solid rgb(153, 153, 153); border-radius: 10px; margin: 2em 0;">
+            <form action="{% url 'addcommenturl' %}" id="commentForm" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="user_name" value="{{user.username}}">
+                <input type="hidden" name="auction_id" value="{{object.pk}}">
+                <textarea name="addComment" id="newCom" cols="30" rows="4" style="border-color: transparent;" placeholder="Add your comment for this item..." class="form-control"></textarea>
+                <input type="submit" value="Post" style="position: relative;float: right;top: -2.5em;" class="btn btn-light">
+            </form>
+            <script type="text/javascript">
+                var f = document.getElementById("commentForm");
+                f.onsubmit = ()=>{
+                    if(document.getElementById("newCom").value.length<1){
+                        document.getElementById("commentError").style.display = "block";    
+                        return false;
+                    }
+                };
+            </script>
+        </div>
+    </div>
+    {% endif %}
+    {% for c in comments %}
+    <div style="border-bottom: 2px solid  rgb(84, 84, 84);margin-bottom: 2em; width: 100%;">
+        <div class="label" style="font-size: 20px;">{{c.comment_name}}</div>
+        <textarea class=textarea class="form-control" disabled>{{c.comment}}</textarea>
+    </div>
+    {% endfor %}
+
+{% endblock %}

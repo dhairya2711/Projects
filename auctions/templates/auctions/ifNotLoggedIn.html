@@ -1,0 +1,6 @@
+{% extends 'auctions/layout.html' %}
+{% block title %}Http 404{% endblock %}
+{% block body %}
+    <div class="alert alert-danger">You have to <a style="font-weight:bold;text-decoration: none;color:inherit;" 
+        href="{% url 'login' %}">Log In</a> to create new auction list</div>
+{% endblock %}

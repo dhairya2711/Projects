@@ -1,0 +1,58 @@
+{% extends 'auctions/layout.html' %}
+{% block title %}WatchList{% endblock %}
+{% block style %}
+    <style>
+        .div{
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+            border-bottom:2px solid black;
+            padding: 3em 2em;
+            height: 15em;
+        }
+        .a, .a:hover{
+            
+            text-decoration: none;
+            color: rgb(84, 84, 84);
+        }
+        img{
+            border-radius: 20px;
+            height:9em;
+            width:auto;
+        }
+        .div:hover{
+            animation-name: bgcolorchanger;
+            animation-duration: 1.5s;
+            animation-fill-mode: forwards;
+        }
+        @keyframes bgcolorchanger {
+            from { background-color: rgba(244, 247, 207, 0);}
+            to { background-color: rgb(244, 247, 207);}
+        } 
+
+    </style>
+{% endblock %}
+{% block body %}
+
+    <h1>{{user.username}}'s <small>WatchList</small></h1><br>
+    
+    {% for i in list %}
+    <a href="{% url 'details' i.item.pk%}" class="a">
+    <div class="div">
+                <div class="forImg">
+                    <img src="{{i.item.img_url}}" alt="No Image">
+                </div>
+            <div>
+                    <h2>{{i.item.title}}</h2>
+                    <span style="font-weight: bold;">Discreption: </span><br>&emsp;<textarea rows="2" style="width:90%; border-color:transparent; background-color: transparent; overflow: hidden;resize: none;" disabled>{{i.item.discription}}</textarea><br>
+                    <span style="font-weight: bold;">Price:</span>{{i.bid.bid}}
+                    <form action="{% url 'addtowatchList' %}" method="POST" style=" float:right;position: relative;top: -5em;" id=deletebtn>
+                        {% csrf_token %}
+                        <input type="hidden" name="user_name" value="{{user.username}}">
+                        <input type="hidden" name="auction_id" value="{{i.item.pk}}">
+                        <input type="hidden" name="remove" value="yes">
+                        <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                    </form>
+            </div>
+        </div></a><br>
+    {% endfor %}
+{% endblock %}

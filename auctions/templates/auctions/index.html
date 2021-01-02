@@ -1,0 +1,76 @@
+{% extends "auctions/layout.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block style %}
+    <style>
+        .div{
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+            border-bottom:2px solid black;
+            padding: 3em 2em;
+            height: 15em;
+        }
+        .a, .a:hover{
+            
+            text-decoration: none;
+            color: rgb(84, 84, 84);
+        }
+        img{
+            border-radius: 20px;
+            height:9em;
+            width:auto;
+        }
+        .div:hover{
+            animation-name: bgcolorchanger;
+            animation-duration: 1.5s;
+            animation-fill-mode: forwards;
+        }
+        @keyframes bgcolorchanger {
+            from { background-color: rgba(244, 247, 207, 0);}
+            to { background-color: rgb(244, 247, 207);}
+        } 
+
+    </style>
+{% endblock %}
+{% block drpdown %}
+<div class="dropdown" style="float: right;top: -2.5em;margin-right: 3em;">
+    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Catagories
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" href="{% url 'catagory' 'all' %}">All</a>
+        <div class="dropdown-divider"></div>
+        {% for i in cat %}
+        <a class="dropdown-item" href="{% url 'catagory' i%}">{{i}}</a>        
+        {% endfor %}
+        <div class="dropdown-divider"></div>
+        <form action="{% url 'index' %}" method="POST" style="margin: 4px;">
+            {% csrf_token %}
+            <input type="search" name="addedCatagory" id="addedCatagory" placeholder="Add Catagory..." class="form-control">
+        </form>
+    </div>
+  </div>
+{% endblock %}
+{% block body %}
+    {% if status == "False" %}
+    <h2>Closed Lists</h2>
+    {% else %}
+    <h2>Active Lists</h2>
+    {% endif %}
+
+    TODO<br><br>
+    {% for i in list %}
+    <a href="{% url 'details' i.item.id %}" class="a">
+    <div class="div">
+                <div class="forImg">
+                    <img src="{{i.item.img_url}}" alt="No Image">
+                </div>
+            <div>
+                    <h2>{{i.item.title}}</h2>
+                    <span style="font-weight: bold;">Discreption: </span><br>&emsp;<textarea rows="2" style="width:90%; border-color:transparent; background-color: transparent; overflow: hidden;resize: none;" disabled>{{i.item.discription}}</textarea><br>
+                    <span style="font-weight: bold;">Price:</span>${{i.bid.bid}}
+                
+            </div>
+        </div></a><br>
+    {% endfor %}
+    
+{% endblock %}

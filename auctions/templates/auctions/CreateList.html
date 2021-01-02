@@ -1,0 +1,29 @@
+{% extends 'auctions/layout.html' %}
+
+{% block title %}Craete List {% endblock %}
+{% block style %}
+    <style>
+        form>input{
+            margin: 10px 0;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+
+    <form action="{% url 'createlist' %}" method="POST">
+        {% csrf_token %}
+        <input type="text" name="title" id="title" placeholder="Add the title of the list..." class="form-control" required>
+        <textarea name="discription" id="discription" cols="30" rows="10" placeholder="Add the discription about the item..." class="form-control" required></textarea>
+        <input type="number" name="bid" id="bid" class="form-control" placeholder="Bid strat at..." required>
+        <input type="text" placeholder="Image URL" name="image_url" id="image_url" class="form-control">
+        <select name="catagory" id="catagory" class="form-control">
+            {% for c in catagories %}
+            
+            <option value="{{c}}">{{c}}</option>
+            
+            {% endfor %}
+        </select>
+        <input type="submit" style="float: right;" class="btn btn-primary" value="Submit">
+    </form>
+
+{% endblock %}
